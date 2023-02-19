@@ -9,10 +9,16 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<TodoContext>(opt =>
     opt.UseInMemoryDatabase("TodoList")
 );
+
+
 builder.Services.AddDbContext<UserContext>(opt =>
     //opt.UseInMemoryDatabase("User")
     opt.UseSqlServer(builder.Configuration.GetConnectionString("SolarPanel"))
 );
+
+
+
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
