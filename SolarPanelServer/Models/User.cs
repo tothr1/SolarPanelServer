@@ -10,5 +10,6 @@ namespace SolarPanelServer.Models
         public string password { get; set; }
         public int role { get; set; }
         public DateTime row_updated { get; set; }
+
     }
 }
