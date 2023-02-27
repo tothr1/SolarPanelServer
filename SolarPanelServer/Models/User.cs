@@ -2,14 +2,13 @@
 
 namespace SolarPanelServer.Models
 {
-    [PrimaryKey(nameof(userName))]
+    [PrimaryKey(nameof(user_name))]
     public class User
     {
-        private int Id { get; set; }
-        public string userName { get; set; }
+        private int id { get; set; }
+        public string user_name { get; set; }
         public string password { get; set; }
-        public Int16 role { get; set; }
-        public DateTime created { get; set; }
-        public DateTime rowUpdated { get; set; }
+        public int role { get; set; }
+        public DateTime row_updated { get; set; }
     }
 }

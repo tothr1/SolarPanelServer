@@ -56,7 +56,7 @@ namespace SolarPanelServer.Controllers
             if (_context.Users == null)
                 return NotFound();
             //var user = await _context.Users.FindAsync(username);
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.userName == userName);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.user_name == userName);
             if(user == null)
             {
                 return NotFound();
@@ -70,7 +70,7 @@ namespace SolarPanelServer.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUser(string userName, User user)
         {
-            if (userName != user.userName)
+            if (userName != user.user_name)
             {
                 return BadRequest();
             }
@@ -101,22 +101,21 @@ namespace SolarPanelServer.Controllers
         [HttpPost]
         public async Task<ActionResult<User>> CreateUser(string userName, string password, string role)
         {
-            Int16 roleConv = -1;
-            if (Int16.TryParse(role, out roleConv))
+            Int32 roleConv = -1;
+            if (Int32.TryParse(role, out roleConv))
             {
                 var user = new User
                 {
-                    userName = userName,
+                    user_name = userName,
                     password = password,
                     role = roleConv,
-                    created = DateTime.Now,
-                    rowUpdated = DateTime.Now
+                    row_updated = DateTime.Now
                 };
 
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetUser", new { userName = user.userName }, user);
+                return CreatedAtAction("GetUser", new { userName = user.user_name }, user);
             }
             else
             {
@@ -127,7 +126,7 @@ namespace SolarPanelServer.Controllers
         [HttpPost("{userName}")]
         public async Task<ActionResult<User>> ModifyUserRole(string userName, string role)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.userName == userName);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.user_name == userName);
             Int16 roleConv = -1;
             if(user == null)
             {
@@ -154,7 +153,7 @@ namespace SolarPanelServer.Controllers
             {
                 return NotFound();
             }
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.userName == userName);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.user_name == userName);
             if (user == null)
             {
                 return NotFound();
@@ -168,12 +167,12 @@ namespace SolarPanelServer.Controllers
 
         private bool UserExists(string userName)
         {
-            return (_context.Users?.Any(e => e.userName == userName)).GetValueOrDefault();
+            return (_context.Users?.Any(e => e.user_name == userName)).GetValueOrDefault();
         }
 
         private User getUserByName(string userName)
         {
-            return (_context.Users.FirstOrDefault(u => u.userName == userName));
+            return (_context.Users.FirstOrDefault(u => u.user_name == userName));
         }
     }
 }
