@@ -11,7 +11,7 @@ using SolarPanelServer.Models;
 
 namespace SolarPanelServer.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Users")]
     [ApiController]
     public class UsersController : ControllerBase
     {
@@ -53,55 +53,55 @@ namespace SolarPanelServer.Controllers
         }*/
 
         //GET: api/Users/test1
-        [HttpGet("{userName}")]
-        public async Task<ActionResult<User>> GetUser(string userName)
-        {
-            if (_context.Users == null)
-                return NotFound();
-            //var user = await _context.Users.FindAsync(username);
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.user_name == userName);
-            if (user == null)
-            {
-                return NotFound();
-            }
-            return user;
-        }
+        //[HttpGet("{userName}")]
+        //public async Task<ActionResult<User>> GetUser(string userName)
+        //{
+        //    if (_context.Users == null)
+        //        return NotFound();
+        //    //var user = await _context.Users.FindAsync(username);
+        //    var user = await _context.Users.FirstOrDefaultAsync(u => u.user_name == userName);
+        //    if (user == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    return user;
+        //}
 
 
         // PUT: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(string userName, User user)
-        {
-            if (userName != user.user_name)
-            {
-                return BadRequest();
-            }
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> PutUser(string userName, User user)
+        //{
+        //    if (userName != user.user_name)
+        //    {
+        //        return BadRequest();
+        //    }
 
-            _context.Entry(user).State = EntityState.Modified;
+        //    _context.Entry(user).State = EntityState.Modified;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserExists(userName))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+        //    try
+        //    {
+        //        await _context.SaveChangesAsync();
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        if (!UserExists(userName))
+        //        {
+        //            return NotFound();
+        //        }
+        //        else
+        //        {
+        //            throw;
+        //        }
+        //    }
 
-            return NoContent();
-        }
+        //    return NoContent();
+        //}
 
         // POST: api/Users
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+        [HttpPost("NewUser")]
         public async Task<ActionResult<User>> CreateUser(string userName, string password, string role)
         {
             Int32 roleConv = -1;
@@ -126,27 +126,27 @@ namespace SolarPanelServer.Controllers
             }
         }
 
-        [HttpPost("{userName}")]
-        public async Task<ActionResult<User>> ModifyUserRole(string userName, string role)
-        {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.user_name == userName);
-            Int16 roleConv = -1;
-            if (user == null)
-            {
-                return NotFound();
-            }
-            if (Int16.TryParse(role, out roleConv))
-            {
-                user.role = roleConv;
-                _context.Users.Update(user);
-                await _context.SaveChangesAsync();
-                return Ok(user);
-            }
-            else
-            {
-                return BadRequest();
-            }
-        }
+        //[HttpPost("{userName}")]
+        //public async Task<ActionResult<User>> ModifyUserRole(string userName, string role)
+        //{
+        //    var user = await _context.Users.FirstOrDefaultAsync(u => u.user_name == userName);
+        //    Int16 roleConv = -1;
+        //    if (user == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    if (Int16.TryParse(role, out roleConv))
+        //    {
+        //        user.role = roleConv;
+        //        _context.Users.Update(user);
+        //        await _context.SaveChangesAsync();
+        //        return Ok(user);
+        //    }
+        //    else
+        //    {
+        //        return BadRequest();
+        //    }
+        //}
         [HttpPost("login")]
 
         public async Task<ActionResult<bool>>Login(string name, string pass)
@@ -164,33 +164,33 @@ namespace SolarPanelServer.Controllers
         }
 
         // DELETE: api/Users/5
-        [HttpDelete("{userName}")]
-        public async Task<IActionResult> DeleteUser(string userName)
-        {
-            if (_context.Users == null)
-            {
-                return NotFound();
-            }
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.user_name == userName);
-            if (user == null)
-            {
-                return NotFound();
-            }
+        //[HttpDelete("{userName}")]
+        //public async Task<IActionResult> DeleteUser(string userName)
+        //{
+        //    if (_context.Users == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    var user = await _context.Users.FirstOrDefaultAsync(u => u.user_name == userName);
+        //    if (user == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
+        //    _context.Users.Remove(user);
+        //    await _context.SaveChangesAsync();
 
-            return NoContent();
-        }
+        //    return NoContent();
+        //}
 
         private bool UserExists(string userName)
         {
             return (_context.Users?.Any(e => e.user_name == userName)).GetValueOrDefault();
         }
 
-        private User getUserByName(string userName)
-        {
-            return (_context.Users.FirstOrDefault(u => u.user_name == userName));
-        }
+        //private User getUserByName(string userName)
+        //{
+        //    return (_context.Users.FirstOrDefault(u => u.user_name == userName));
+        //}
     }
 }
