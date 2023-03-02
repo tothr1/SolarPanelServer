@@ -4,7 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.DiaSymReader;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using SolarPanelServer.Models;
 
 namespace SolarPanelServer.Controllers
@@ -20,14 +22,15 @@ namespace SolarPanelServer.Controllers
             _context = context;
         }
 
+        
         // GET: api/Users
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-          if (_context.Users == null)
-          {
-              return NotFound();
-          }
+            if (_context.Users == null)
+            {
+                return NotFound();
+            }
             return await _context.Users.ToListAsync();
         }
 
@@ -57,7 +60,7 @@ namespace SolarPanelServer.Controllers
                 return NotFound();
             //var user = await _context.Users.FindAsync(username);
             var user = await _context.Users.FirstOrDefaultAsync(u => u.user_name == userName);
-            if(user == null)
+            if (user == null)
             {
                 return NotFound();
             }
@@ -128,11 +131,11 @@ namespace SolarPanelServer.Controllers
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.user_name == userName);
             Int16 roleConv = -1;
-            if(user == null)
+            if (user == null)
             {
                 return NotFound();
             }
-            if(Int16.TryParse(role, out roleConv))
+            if (Int16.TryParse(role, out roleConv))
             {
                 user.role = roleConv;
                 _context.Users.Update(user);
@@ -143,6 +146,21 @@ namespace SolarPanelServer.Controllers
             {
                 return BadRequest();
             }
+        }
+        [HttpPost("login")]
+
+        public async Task<ActionResult<bool>>Login(string name, string pass)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.user_name == name);
+            if (user == null)
+            {
+                return BadRequest("User not found");
+            }
+                if(user.password != pass)
+            {
+                return BadRequest("Wrong password");
+            }
+            return Ok("Succesful login");
         }
 
         // DELETE: api/Users/5
