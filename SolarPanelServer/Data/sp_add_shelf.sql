@@ -8,7 +8,7 @@ GO
 -- Description:	Adds a new shelf. Row number increments automatically, column and level count needs to be specified.
 -- Default (C:8, L:5) x 5
 -- =============================================
-ALTER PROCEDURE AddShelfRow
+CREATE OR ALTER PROCEDURE AddShelfRow
 	-- Add the parameters for the stored procedure here
 	@columns int,
 	@levels int
