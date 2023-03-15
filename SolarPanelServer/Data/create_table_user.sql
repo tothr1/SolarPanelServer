@@ -1,7 +1,7 @@
 USE [SolarPanel]
 GO
 
-/****** Object:  Table [dbo].[USER]    Script Date: 2023. 02. 20. 19:18:56 ******/
+/****** Object:  Table [dbo].[Users]    Script Date: 2023. 03. 15. 10:58:16 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -20,4 +20,5 @@ CREATE TABLE [dbo].[Users](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
+
 
