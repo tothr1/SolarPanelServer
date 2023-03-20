@@ -8,7 +8,7 @@ GO
 -- Create date: <Create Date,,>
 -- Description:	<Description,,>
 -- =============================================
-ALTER PROCEDURE AddComponent
+CREATE OR ALTER PROCEDURE AddComponent
 	-- Add the parameters for the stored procedure here
 	@material int,
 	@shelf int,

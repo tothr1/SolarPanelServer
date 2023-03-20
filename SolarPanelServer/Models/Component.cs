@@ -2,10 +2,8 @@
 
 namespace SolarPanelServer.Models
 {
-    public class Component
-    {
-        [PrimaryKey(nameof(component_id))]
-        public class User
+    [PrimaryKey(nameof(component_id))]
+        public class Component
         {
             private int component_id { get; set; }
             public string material { get; set; }
@@ -14,5 +12,5 @@ namespace SolarPanelServer.Models
             public DateTime row_updated { get; set; }
 
         }
-    }
-}
+ }
+

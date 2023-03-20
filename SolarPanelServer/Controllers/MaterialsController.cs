@@ -108,7 +108,7 @@ namespace SolarPanelServer.Controllers
                 return BadRequest();
             }
         }
-        [HttpPost ("edit")]
+        [HttpPost ("editprice")]
         public async Task<ActionResult<Material>> Editprice(string materialname,int price_)
         {
             var mat = await _context.Materials.FirstOrDefaultAsync(u => u.material_name == materialname);
