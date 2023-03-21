@@ -2,7 +2,7 @@
 
 namespace SolarPanelServer.Models
 {
-    public class ProjectContext
+    public class ProjectContext : DbContext
     {
         /*
           public MaterialContext(DbContextOptions<MaterialContext> options) : base(options) { }
