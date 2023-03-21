@@ -117,8 +117,8 @@ namespace SolarPanelServer.Controllers
 
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
-
-                return CreatedAtAction("GetUser", new { userName = user.user_name }, user);
+                return Ok(user);
+                //return CreatedAtAction("GetUser", new { userName = user.user_name }, user);
             }
             else
             {
