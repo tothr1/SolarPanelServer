@@ -6,9 +6,9 @@ namespace SolarPanelServer.Models
         public class Component
         {
             public int component_id { get; set; }
-            public string material { get; set; }
-            public string shelf { get; set; }
-            public int project { get; set; }
+            public int material { get; set; }
+            public int shelf { get; set; }
+            public int? project { get; set; }
             public DateTime row_updated { get; set; }
 
             
