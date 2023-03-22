@@ -108,22 +108,42 @@ namespace SolarPanelServer.Controllers
                 return BadRequest();
             }
         }
-        [HttpPost ("edit")]
+        [HttpPost ("editprice")]
         public async Task<ActionResult<Material>> Editprice(string materialname,int price_)
         {
             var mat = await _context.Materials.FirstOrDefaultAsync(u => u.material_name == materialname);
             if (mat != null)
             {
-                var materials = new Material
-                {
-                    price = price_,
-                    row_updated = DateTime.Now
-                };
+                mat.price = price_;
 
                 
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetMaterial", new { materialname = materials.material_name }, mat);
+                return CreatedAtAction("GetMaterial", new { materialname = mat.material_name }, mat);
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+        [HttpPost("editlimit")]
+        public async Task<ActionResult<Material>> EditLimit(string materialname, int limit)
+        {
+            var mat = await _context.Materials.FirstOrDefaultAsync(u => u.material_name == materialname);
+            if (mat != null)
+            {
+                if (limit >= mat.shelf_limit)
+                {
+                    mat.shelf_limit = limit;
+
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    return BadRequest("HIBA, A megadott érték nem lehet kisebb a jelenlegi értéknél!");
+                }
+
+                return CreatedAtAction("GetMaterial", new { materialname = mat.material_name }, mat);
             }
             else
             {
