@@ -9,6 +9,7 @@ namespace SolarPanelServer.Models
         private int project_id { get; set; }
         public string address { get; set; }
         public string description { get; set; }
+
         public DateTime deadline { get; set; }
         public int fee { get; set; }
         public string status { get; set; }
