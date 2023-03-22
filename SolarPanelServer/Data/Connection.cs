@@ -18,17 +18,23 @@ namespace SolarPanelServer.Data
         {
             DataTable dt = new DataTable();
             SqlConnection conn = new SqlConnection(connString);
-            using(SqlCommand cmd = new SqlCommand())
-            {
+            SqlCommand cmd = new SqlCommand(query, conn);
                 conn.Open();
-                cmd.CommandText = query;
-                SqlDataAdapter adapter = new SqlDataAdapter();
+                SqlDataAdapter adapter = new SqlDataAdapter(cmd);
                 adapter.Fill(dt);
                 conn.Close();
                 adapter.Dispose();
                 return dt;
                 
-            }
+            
+        }
+        public static void addQuery(string query)
+        {
+            DataTable dt = new DataTable();
+            SqlConnection conn = new SqlConnection(connString);
+            SqlCommand cmd = new SqlCommand(query, conn);
+            cmd.ExecuteNonQuery();
+
         }
     }
 }
