@@ -50,29 +50,45 @@ namespace SolarPanelServer.Controllers
             return project;
         }
 
-        [HttpPost("New Project")]
-        public async Task<ActionResult<Material>> CreateProject(string _address, string _description, DateTime _deadline, int _fee, string _owner)
+
+        //[HttpPost("New Project")]
+        //public async Task<ActionResult<<Project>> CreateProject(string _address, string _description, DateTime _deadline, int _fee, string _owner)
+        //{
+
+        //        var project = new Project
+        //        {
+        //            address = _address,
+        //            description = _description,
+        //            deadline = _deadline,
+        //            fee = _fee,
+        //            status = "New",
+        //            owner = _owner,
+        //            row_updated = DateTime.Now
+        //        };
+
+        //        _context.Projects.Add(project);
+        //        await _context.SaveChangesAsync();
+
+        //        return CreatedAtAction("GetProject", new { id = project.project_id }, project);
+
+
+        //}
+        [HttpPost]
+        public async Task<ActionResult<Project>> AddNewProject(Project newProject)
         {
-            //var mat = await _context.Projects.FirstOrDefaultAsync(u => u. == materialname);
-            //if (mat == null)
-            
-                var project = new Project
-                {
-                    address = _address,
-                    description = _description,
-                    deadline = _deadline,
-                    fee = _fee,
-                    status = "New",
-                    owner = _owner,
-                    row_updated = DateTime.Now
-                };
+            if (newProject == null)
+            {
+                return BadRequest("Invalid request body");
+            }
 
-                _context.Projects.Add(project);
-                await _context.SaveChangesAsync();
+            // set default values for status and creation time
+            newProject.status = "New";
+            newProject.row_updated = DateTime.Now;
 
-                return CreatedAtAction("GetProject", new { id = project.project_id }, project);
-           
-            
+            _context.Projects.Add(newProject);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetProject), new { id = newProject.project_id }, newProject);
         }
         [HttpPost("End Project")]
         public async Task<ActionResult<Project>> EndProject(int id, string status)
@@ -81,27 +97,76 @@ namespace SolarPanelServer.Controllers
             var mat = await _context.Projects.FirstOrDefaultAsync(u => u.project_id == id);
             if (mat != null)
             {
-                
-                
-                    var project = new Project
-                    {
-                        status = status,
-                        row_updated = DateTime.Now
-                    };
-                
+
+
+                mat.status = status;
+
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetProject", new { id = project.project_id }, mat);
-                
-               
+                return CreatedAtAction("GetProject", new { id = mat.project_id }, mat);
+
+
             }
             else
             {
                 return BadRequest();
             }
-
-
         }
+            [HttpPost("WorkHour and Fee")]
+            public async Task<ActionResult<Project>> Hourfee(int id,DateTime date, int fees)
+            {
+
+                var mat = await _context.Projects.FirstOrDefaultAsync(u => u.project_id == id);
+                if (mat != null)
+                {
+
+
+                mat.deadline = date;
+                mat.fee = fees;
+                    mat.row_updated = DateTime.Now;
+
+                    await _context.SaveChangesAsync();
+
+                    return CreatedAtAction("GetProject", new { id = mat.project_id }, mat);
+
+
+                }
+                else
+                {
+                    return BadRequest();
+                }
+
+            }
+        [HttpPost("Add Components to Project")]
+        public async Task<IActionResult> AddComponentsToProject(int projectId, List<int> componentIds)
+        {
+            var project = await _context.Projects.FindAsync(projectId);
+
+            if (project == null)
+            {
+                return NotFound();
+            }
+
+            var components = await _context.Components
+                .Where(c => componentIds.Contains(c.component_id))
+                .ToListAsync();
+
+            if (components.Count != componentIds.Count)
+            {
+                return BadRequest("One or more components were not found.");
+            }
+
+            foreach (var component in components)
+            {
+                component.project = projectId;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+
         // PUT: api/Projects/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         //[HttpPut("{id}")]
