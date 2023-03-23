@@ -81,27 +81,46 @@ namespace SolarPanelServer.Controllers
             var mat = await _context.Projects.FirstOrDefaultAsync(u => u.project_id == id);
             if (mat != null)
             {
-                
-                
-                    var project = new Project
-                    {
-                        status = status,
-                        row_updated = DateTime.Now
-                    };
-                
+
+
+                mat.status = status;
+
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetProject", new { id = project.project_id }, mat);
-                
-               
+                return CreatedAtAction("GetProject", new { id = mat.project_id }, mat);
+
+
             }
             else
             {
                 return BadRequest();
             }
-
-
         }
+            [HttpPost("WorkHour and Fee")]
+            public async Task<ActionResult<Project>> Hourfee(int id,DateTime date, int fees)
+            {
+
+                var mat = await _context.Projects.FirstOrDefaultAsync(u => u.project_id == id);
+                if (mat != null)
+                {
+
+
+                mat.deadline = date;
+                mat.fee = fees;
+                    mat.row_updated = DateTime.Now;
+
+                    await _context.SaveChangesAsync();
+
+                    return CreatedAtAction("GetProject", new { id = mat.project_id }, mat);
+
+
+                }
+                else
+                {
+                    return BadRequest();
+                }
+
+            }
         // PUT: api/Projects/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         //[HttpPut("{id}")]
