@@ -108,6 +108,28 @@ namespace SolarPanelServer.Controllers
                 return BadRequest();
             }
         }
+        [HttpPost ("edit")]
+        public async Task<ActionResult<Material>> Editprice(string materialname,int price_)
+        {
+            var mat = await _context.Materials.FirstOrDefaultAsync(u => u.material_name == materialname);
+            if (mat != null)
+            {
+                var materials = new Material
+                {
+                    price = price_,
+                    row_updated = DateTime.Now
+                };
+
+                
+                await _context.SaveChangesAsync();
+
+                return CreatedAtAction("GetMaterial", new { materialname = materials.material_name }, mat);
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
 
         // DELETE: api/Materials/5
         [HttpDelete("{id}")]
