@@ -50,29 +50,6 @@ namespace SolarPanelServer.Controllers
             return project;
         }
 
-
-        //[HttpPost("New Project")]
-        //public async Task<ActionResult<<Project>> CreateProject(string _address, string _description, DateTime _deadline, int _fee, string _owner)
-        //{
-
-        //        var project = new Project
-        //        {
-        //            address = _address,
-        //            description = _description,
-        //            deadline = _deadline,
-        //            fee = _fee,
-        //            status = "New",
-        //            owner = _owner,
-        //            row_updated = DateTime.Now
-        //        };
-
-        //        _context.Projects.Add(project);
-        //        await _context.SaveChangesAsync();
-
-        //        return CreatedAtAction("GetProject", new { id = project.project_id }, project);
-
-
-        //}
         [HttpPost]
         public async Task<ActionResult<Project>> AddNewProject(Project newProject)
         {
@@ -165,77 +142,41 @@ namespace SolarPanelServer.Controllers
 
             return Ok();
         }
+        [HttpPost("Calculate Fee for Project")]
+        public async Task<ActionResult<Project>> CalculateFeeForProject(int projectId)
+        {
+            var project = await _context.Projects.FindAsync(projectId);
 
+            if (project == null)
+            {
+                return NotFound();
+            }
 
-        // PUT: api/Projects/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> PutProject(string nev, Project project)
-        //{
-        //    if (nev != project.)
-        //    {
-        //        return BadRequest();
-        //    }
+            var components = await _context.Components
+                .Where(c => c.project == projectId)
+                .ToListAsync();
 
-        //    _context.Entry(project).State = EntityState.Modified;
+            if (components.Count == 0)
+            {
+                return BadRequest("No components found for this project.");
+            }
 
-        //    try
-        //    {
-        //        await _context.SaveChangesAsync();
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        if (!ProjectExists(id))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
+            var materials = await _context.Materials
+                .Where(m => components.Select(c => c.material).Contains(m.material_id))
+                .ToListAsync();
 
-        //    return NoContent();
-        //}
+            var sum = materials.Sum(m => m.price);
 
-        // POST: api/Projects
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPost]
-        //public async Task<ActionResult<Project>> PostProject(Project project)
-        //{
-        //  if (_context.Projects == null)
-        //  {
-        //      return Problem("Entity set 'ProjectContext.Projects'  is null.");
-        //  }
-        //    _context.Projects.Add(project);
-        //    await _context.SaveChangesAsync();
+            // Calculate the total price for all the components in the project
+            var componentsTotalPrice = components.Sum(c => _context.Materials.Single(m => m.material_id == c.material).price);
 
-        //    return CreatedAtAction("GetProject", new { id = project.project_id }, project);
-        //}
+            project.fee = componentsTotalPrice + sum;
+            project.row_updated = DateTime.Now;
 
-        // DELETE: api/Projects/5
-        //[HttpDelete("{id}")]
-        //public async Task<IActionResult> DeleteProject(int id)
-        //{
-        //    if (_context.Projects == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    var project = await _context.Projects.FindAsync(id);
-        //    if (project == null)
-        //    {
-        //        return NotFound();
-        //    }
+            await _context.SaveChangesAsync();
 
-        //    _context.Projects.Remove(project);
-        //    await _context.SaveChangesAsync();
+            return CreatedAtAction("GetProject", new { id = project.project_id }, project);
+        }
 
-        //    return NoContent();
-        //}
-
-        //private bool ProjectExists(int id)
-        //{
-        //    return (_context.Projects?.Any(e => e.project_id == id)).GetValueOrDefault();
-        //}
     }
 }

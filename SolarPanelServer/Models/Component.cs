@@ -12,5 +12,7 @@ namespace SolarPanelServer.Models
         public int? project { get; set; }
         public DateTime row_updated { get; set; }
 
+
+
     }
 }
