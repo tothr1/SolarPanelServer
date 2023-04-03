@@ -8,6 +8,8 @@ using Microsoft.DiaSymReader;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 using SolarPanelServer.Models;
+using System.Data.SqlClient;
+using System.Net;
 
 namespace SolarPanelServer.Controllers
 {
@@ -155,11 +157,23 @@ namespace SolarPanelServer.Controllers
             var user = await _context.Users.FirstOrDefaultAsync(u => u.user_name == name);
             if (user == null)
             {
-                return BadRequest("User not found");
+                return Unauthorized(new ProblemDetails
+                {
+                    Title = "Authentication failed",
+                    Detail = "Invalid username!",
+                    Status = (int)HttpStatusCode.Unauthorized
+                });
+                //return BadRequest("User not found");
             }
                 if(user.password != pass)
             {
-                return BadRequest("Wrong password");
+                return Unauthorized(new ProblemDetails
+                {
+                    Title = "Authentication failed",
+                    Detail = "Wrong password!",
+                    Status = (int)HttpStatusCode.Unauthorized
+                });
+                //return BadRequest("Wrong password");
             }
             return Ok("Succesful login");
         }

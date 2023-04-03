@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SolarPanelServer.Data;
 
 namespace SolarPanelServer.Models
 {
@@ -10,7 +11,6 @@ namespace SolarPanelServer.Models
         public int shelf { get; set; }
         public int? project { get; set; }
         public DateTime row_updated { get; set; }
-
 
     }
 }
