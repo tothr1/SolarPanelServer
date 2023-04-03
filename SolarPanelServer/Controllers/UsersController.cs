@@ -10,6 +10,11 @@ using Microsoft.Identity.Client;
 using SolarPanelServer.Models;
 using System.Data.SqlClient;
 using System.Net;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.CodeAnalysis.Elfie.Diagnostics;
+using System.Text;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace SolarPanelServer.Controllers
 {
@@ -17,13 +22,19 @@ namespace SolarPanelServer.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
+        public static User user = new User();
         private readonly UserContext _context;
+        private readonly IConfiguration _config;
 
-        public UsersController(UserContext context)
+        //public UsersController(UserContext context)
+        //{
+        //    _context = context;
+        //}
+        public UsersController(IConfiguration configuration,UserContext context)
         {
-            _context = context;
+            _config = configuration;
+            _context = context; 
         }
-
         
         // GET: api/Users
         [HttpGet]
@@ -174,8 +185,10 @@ namespace SolarPanelServer.Controllers
                     Status = (int)HttpStatusCode.Unauthorized
                 });
                 //return BadRequest("Wrong password");
+                
             }
-            return Ok("Succesful login");
+            string token = CreateToken(user);
+            return Ok("Succesful login: " + token);
         }
 
         // DELETE: api/Users/5
@@ -207,5 +220,26 @@ namespace SolarPanelServer.Controllers
         //{
         //    return (_context.Users.FirstOrDefault(u => u.user_name == userName));
         //}
+        private string CreateToken(User user)
+        {
+            List<Claim> tokens = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.user_name),
+                new Claim(ClaimTypes.Role, user.role.ToString())
+            };
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+                _config.GetSection("AppSettings:Token").Value!));
+
+            var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+
+            var token = new JwtSecurityToken(
+                    claims: tokens,
+                    expires: DateTime.Now.AddHours(1),
+                    signingCredentials: cred
+                );
+
+            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+            return jwt;
+        }
     }
 }
