@@ -10,5 +10,7 @@ namespace SolarPanelServer.Models
         public int shelf_limit { get; set; }
         public int price { get; set; }
         public DateTime row_updated { get; set; }
+
+        
     }
 }

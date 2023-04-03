@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SolarPanelServer.Models;
+using System.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 
