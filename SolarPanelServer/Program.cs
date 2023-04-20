@@ -28,6 +28,9 @@ builder.Services.AddDbContext<MaterialContext>(opt =>
 builder.Services.AddDbContext<ProjectContext>(opt =>
     opt.UseSqlServer(builder.Configuration.GetConnectionString("SolarPanel"))
 );
+builder.Services.AddDbContext<ShelfContext>(opt =>
+    opt.UseSqlServer(builder.Configuration.GetConnectionString("SolarPanel"))
+);
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
