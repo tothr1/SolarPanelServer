@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using Microsoft.EntityFrameworkCore;
 using SolarPanelServer.Models;
+using SolarPanelServer.Models.SolarPanel;
+using System.Text.Json;
 
 namespace SolarPanelServer.Controllers
 {
@@ -177,6 +179,30 @@ namespace SolarPanelServer.Controllers
 
             return CreatedAtAction("GetProject", new { id = project.project_id }, project);
         }
+    
+    [HttpGet("ListMaterials")]
+    public async Task<string> ListMaterials(int projectId)
+    {
+        if (_context.Projects == null)
+        {
+            return "No material added to this project";
+        }
+        var project = await _context.Projects.FindAsync(projectId);
+            var components = await _context.Components
+                .Where(c => c.project == projectId)
+                .ToListAsync();
+            List<string> shelves = new List<string>();
+            foreach (var component in components)
+            {
+                var she = await _context.Shelves.FirstOrDefaultAsync(s => s.shelf_id == component.shelf);
+                if (she != null)
+                    shelves.Add($"{she.shelf_row}_{she.shelf_column}_{she.shelf_level}");
+                shelves = shelves.Distinct().ToList();
+            }
 
-    }
+
+            return JsonSerializer.Serialize(shelves);
+        }
+
+}
 }
