@@ -10,6 +10,9 @@ using Microsoft.EntityFrameworkCore;
 using SolarPanelServer.Models;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using SolarPanelServer.Data;
+using SolarPanelServer.Models.SolarPanel;
+using System.Security.Cryptography.X509Certificates;
+using System.Text.Json;
 
 namespace SolarPanelServer.Controllers
 {
@@ -24,108 +27,31 @@ namespace SolarPanelServer.Controllers
             _context = context;
         }
 
-        // GET: api/Components
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Component>>> GetComponents()
         {
-          if (_context.Components == null)
-          {
-              return NotFound();
-          }
-            return await _context.Components.ToListAsync();
+            var components = await _context.Components.ToListAsync();
+
+            if (components == null || components.Count == 0)
+            {
+                return NotFound();
+            }
+
+            return components;
         }
 
-        // GET: api/Components/5
-        //[HttpGet("material")]
-        //public async Task<ActionResult<Component>> GetComponent(int project, string material, int db)
-        //{
-        //    ///*var cmop = await _context.Components.FirstOrDefaultAsync(u => u.project == project*/);
-        //    if (_context.Components != null)
-        //  {
-        //      return NotFound();
-        //  }
-        //    var component = await _context.Components.FindAsync(id);
 
-        //    if (component == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return component;
-        //}
-
-        //[HttpPut("GetComponent")]
-        //public ActionResult<List<Component>> GetComponent(int project, string _material, int db)
-        //{
-        //    //List<Component> customers = new List<Component>();
-
-
-        //    DataTable dt = Connection.runQuery($"SELECT TOP {db} component_id FROM Components WHERE material = '{_material}' AND project is NULL");
-
-        //    List<Component> components = new List<Component>();
-
-        //    foreach (DataRow dr in dt.Rows)
-        //    {
-        //        Component component = new Component
-        //        {
-        //            component_id = Convert.ToInt32(dr["component_id"]),
-        //            material = dr["material"].ToString(),
-        //            shelf = dr["shelf"].ToString(),
-        //            project = Convert.ToInt32(dr["project"]),
-        //            row_updated = Convert.ToDateTime(dr["row_updated"])
-        //        };
-
-        //        components.Add(component);
-        //    }
-        //    return Ok();
-        //}
-        // PUT: api/Components/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPut("List Component")]
-        //public async Task<IActionResult> AssignComponent(int id)
-        //{
-        //    if (id != component.component_id)
-        //    {
-        //        return BadRequest();
-        //    }
-
-        //    _context.Entry(component).State = EntityState.Modified;
-
-        //    try
-        //    {
-        //        await _context.SaveChangesAsync();
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        if (!ComponentExists(id))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
-
-        //    return NoContent();
-        //}
-
-        // POST: api/Components
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Component>> PostComponent(Component component)
+        [HttpPost("AddComponent")]
+        public async Task<ActionResult<Component>> PostComponent(int material, int db)
         {
-          if (_context.Components == null)
-          {
-              return Problem("Entity set 'ComponentContext.Components'  is null.");
-          }
-            _context.Components.Add(component);
+            var mat = await _context.Materials.FirstOrDefaultAsync(u => u.material_id == material);
+            
+            string result = await FindShelves(material, db);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetComponent", new { id = component.component_id }, component);
+            return Ok(result);
         }
 
-        // DELETE: api/Components/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteComponent(int id)
         {
@@ -144,10 +70,72 @@ namespace SolarPanelServer.Controllers
 
             return NoContent();
         }
-
-        private bool ComponentExists(int id)
+            private bool ComponentExists(int id)
         {
             return (_context.Components?.Any(e => e.component_id == id)).GetValueOrDefault();
         }
+
+        private async Task<string> FindShelves(int matid, int db)
+        {
+            var material = await _context.Materials.FirstOrDefaultAsync(m => m.material_id == matid);
+            var components = await _context.Components
+                .Where(c => c.material == matid)
+                .ToListAsync();
+
+
+            var shelfIds = components
+                .Select(c => c.shelf)
+                .Distinct()
+                .ToList();
+
+            List<Shelves> shelves = new List<Shelves>();
+            Dictionary<int, int> shelfAssign = new Dictionary<int, int>();
+            foreach (var shelf in shelfIds) {
+                var she = await _context.Shelves.FirstOrDefaultAsync(s => s.shelf_id == shelf);
+                shelves.Add(she);
+            }
+            foreach (var shelf in shelves) {
+                if (material.shelf_limit > shelf.part_count && db > 0)
+                {
+                    int darab = db;
+                    db = incrementShelf(shelf, db, material);
+                    shelfAssign.Add(shelf.shelf_id, darab-db);
+                }
+            }
+            while (db != 0) {
+                var she = await _context.Shelves.FirstOrDefaultAsync(z => z.part_count==0);
+                int darab = db;
+                db = incrementShelf(she, db, material);
+                shelfAssign.Add(she.shelf_id, darab-db);
+            }
+            return JsonSerializer.Serialize(shelfAssign);
+        }
+        int incrementShelf(Shelves s, int db,Material m) {
+            var tarhely = m.shelf_limit - s.part_count;
+            if (tarhely >= db)
+            {
+                s.part_count += db;
+                for (int i = 0; i < db; i++)
+                {
+                    Component c = new Component();
+                    c.material = m.material_id;
+                    c.shelf = s.shelf_id;
+                }
+                db = 0;
+            }
+            else
+            {
+                s.part_count = m.shelf_limit;
+                for (int i = 0; i < tarhely; i++)
+                {
+                    Component c = new Component();
+                    c.material = m.material_id;
+                    c.shelf = s.shelf_id;
+                }
+                db -= tarhely;
+            }
+            return db;
+        }
+
     }
 }
