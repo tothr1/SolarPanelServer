@@ -27,7 +27,6 @@ namespace SolarPanelServer.Controllers
             _context = context;
         }
 
-        // GET: api/Components
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Component>>> GetComponents()
         {
@@ -53,7 +52,6 @@ namespace SolarPanelServer.Controllers
             return Ok(result);
         }
 
-        // DELETE: api/Components/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteComponent(int id)
         {
@@ -80,12 +78,11 @@ namespace SolarPanelServer.Controllers
         private async Task<string> FindShelves(int matid, int db)
         {
             var material = await _context.Materials.FirstOrDefaultAsync(m => m.material_id == matid);
-            // Find components with the specified material ID
             var components = await _context.Components
                 .Where(c => c.material == matid)
                 .ToListAsync();
 
-            // Get a list of unique shelf IDs from the components
+
             var shelfIds = components
                 .Select(c => c.shelf)
                 .Distinct()

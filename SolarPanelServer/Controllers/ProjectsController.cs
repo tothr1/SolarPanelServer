@@ -59,8 +59,6 @@ namespace SolarPanelServer.Controllers
             {
                 return BadRequest("Invalid request body");
             }
-
-            // set default values for status and creation time
             newProject.status = "New";
             newProject.row_updated = DateTime.Now;
 
@@ -169,7 +167,6 @@ namespace SolarPanelServer.Controllers
 
             var sum = materials.Sum(m => m.price);
 
-            // Calculate the total price for all the components in the project
             var componentsTotalPrice = components.Sum(c => _context.Materials.Single(m => m.material_id == c.material).price);
 
             project.fee = componentsTotalPrice + sum;
